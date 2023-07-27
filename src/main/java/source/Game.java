@@ -4,14 +4,14 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JFrame;
-
 import source.menus.MainMenu;
 
-public class Game extends Canvas implements Runnable {
+public class Game extends Canvas implements Runnable,KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -20,7 +20,6 @@ public class Game extends Canvas implements Runnable {
 	private int width = 240;
 	private int height = 120;
 	private int scale = 3;
-	private BufferedImage image;
 
 	//Variáveis para estados do game
 	private String gameState = "MAIN_MENU";
@@ -33,7 +32,6 @@ public class Game extends Canvas implements Runnable {
 	public static MainMenu mainMenu;
 
 	public Game() {
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		mainMenu = new MainMenu();
 		initFrame();
 	}
@@ -65,9 +63,9 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void tick() {
-		/*
-		 * if (gameState == "MAIN_MENU") { mainMenu.tick(); }
-		 */
+		if (gameState == "MAIN_MENU") {
+			mainMenu.tick(); 
+			} 
 	}
 
 	private void render() {
@@ -79,6 +77,11 @@ public class Game extends Canvas implements Runnable {
 		Graphics g = bs.getDrawGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, width*scale, height*scale);
+		
+		if(gameState=="MAIN_MENU") {
+			mainMenu.render(g);
+		}
+		
 		bs.show();
 
 	}
@@ -111,6 +114,21 @@ public class Game extends Canvas implements Runnable {
 			}
 		}
 		stop();
+	}
+
+	
+	//Configuração de ações após entrada de dados via teclado.
+	
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	public void keyPressed(KeyEvent e) {
+		
+	}
+
+	public void keyReleased(KeyEvent e) {
+		
 	}
 
 }
