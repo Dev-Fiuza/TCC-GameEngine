@@ -7,33 +7,53 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import javax.swing.JFrame;
-import source.menus.MainMenu;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Game extends Canvas implements Runnable,KeyListener {
+import javax.swing.JFrame;
+
+import source.entities.Entity;
+import source.entities.player.Player;
+import source.graphics.Spritesheet;
+import source.menus.MainMenu;
+import source.menus.PauseMenu;
+
+public class Game extends Canvas implements Runnable, KeyListener {
 
 	private static final long serialVersionUID = 1L;
-	
-	//Variáveis da parte Gráfica
+
+	// Variáveis da parte Gráfica
 	private static JFrame frame;
 	private int width = 240;
 	private int height = 120;
 	private int scale = 3;
 
-	//Variáveis para estados do game
-	private String gameState = "MAIN_MENU";
-	
-	//Variávies de controle interno
+	// Variáveis para estados do game
+	public static String gameState = "MAIN_MENU";
+
+	// Variávies de controle interno
 	private Thread thread;
 	private boolean isRunning;
 
 	// Objetos de diferentes partes do jogo
-	public static MainMenu mainMenu;
+	private MainMenu mainMenu;
+	private PauseMenu pauseMenu;
+
+	// Entidades e gráficos
+	private List<Entity> entities;
+	public static Spritesheet playerSprite;
+	private Player player;
 
 	public Game() {
+		addKeyListener(this);
 		mainMenu = new MainMenu();
+		pauseMenu = new PauseMenu();
 		initFrame();
+		// Inicialização de objetos
+		entities = new ArrayList<Entity>();
+		playerSprite = new Spritesheet("/character/player-char.png");
+		player = new Player(0, 0, 64, 64, playerSprite.getSprite(0, 0, 64, 64));
+		entities.add(player);
 	}
 
 	public static void main(String[] args) {
@@ -59,16 +79,33 @@ public class Game extends Canvas implements Runnable,KeyListener {
 	}
 
 	public synchronized void stop() {
-
+		isRunning = false;
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void tick() {
+		for (int i = 0; i < entities.size(); i++) {
+			Entity e = entities.get(i);
+			e.tick();
+		}
+
 		if (gameState == "MAIN_MENU") {
-			mainMenu.tick(); 
-			} 
+			mainMenu.tick();
+		} else if (gameState == "PAUSE_MENU") {
+			pauseMenu.tick();
+		} else if (gameState == "GAMEPLAY") {
+
+		}
+
 	}
 
 	private void render() {
+
+		// CONFIGURAÇÃO INICIAL PARA RENDERIZAÇÃO
 		BufferStrategy bs = this.getBufferStrategy();
 		if (bs == null) {
 			this.createBufferStrategy(3);
@@ -76,14 +113,16 @@ public class Game extends Canvas implements Runnable,KeyListener {
 		}
 		Graphics g = bs.getDrawGraphics();
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, width*scale, height*scale);
-		
-		if(gameState=="MAIN_MENU") {
-			mainMenu.render(g);
-		}
-		
-		bs.show();
+		g.fillRect(0, 0, width * scale, height * scale);
 
+		// RENDERIZAÇÃO DO GAME
+		for (int i = 0; i < entities.size(); i++) {
+			Entity e = entities.get(i);
+			e.render(g);
+		}
+
+		g.dispose();
+		bs.show();
 	}
 
 	// Método que contém o sistema para controlar os ticks por segundos
@@ -116,19 +155,42 @@ public class Game extends Canvas implements Runnable,KeyListener {
 		stop();
 	}
 
-	
-	//Configuração de ações após entrada de dados via teclado.
-	
+	// Configuração de ações após entrada de dados via teclado.
+
 	public void keyTyped(KeyEvent e) {
-		
+
 	}
 
 	public void keyPressed(KeyEvent e) {
-		
+
+		// Movimentação CIMA BAIXO
+		if (e.getKeyCode() == KeyEvent.VK_W) {
+			player.setUp(true);
+		} else if (e.getKeyCode() == KeyEvent.VK_S) {
+			player.setDown(true);
+		}
+
+		// Movimentaão ESQUERDA DIREITA
+		if (e.getKeyCode() == KeyEvent.VK_A) {
+			player.setLeft(true);
+		} else if (e.getKeyCode() == KeyEvent.VK_D) {
+			player.setRight(true);
+		}
 	}
 
 	public void keyReleased(KeyEvent e) {
-		
+		if (e.getKeyCode() == KeyEvent.VK_W) {
+			player.setUp(false);
+		} else if (e.getKeyCode() == KeyEvent.VK_S) {
+			player.setDown(false);
+		}
+
+		// Movimentaão ESQUERDA DIREITA
+		if (e.getKeyCode() == KeyEvent.VK_A) {
+			player.setLeft(false);
+		} else if (e.getKeyCode() == KeyEvent.VK_D) {
+			player.setRight(false);
+		}
 	}
 
 }

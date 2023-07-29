@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 
+import source.Game;
+
 public class PauseMenu {
 
 	public String[] options = { "Retomar Jogo", "Opções" };
@@ -31,9 +33,9 @@ public class PauseMenu {
 		if (enter) {
 			enter = false;
 			if (options[currentOption] == "Retomar Jogo") {
-				// Game.gameState = "RESUME GAME";
+				 Game.gameState = "GAMEPLAY";
 			} else if (options[currentOption] == "Opções") {
-				// Game.gameState = "OPTIONS";
+				 Game.gameState = "OPTIONS";
 			}
 		}
 
